@@ -1,0 +1,28 @@
+services:
+  test_mm:
+    image: mattermost/mattermost-preview
+    container_name: test_mm
+    ports:
+      - "8065:8065"
+    env_file:
+      - .env
+
+  tarantool:
+    image: tarantool/tarantool:latest
+    container_name: tarantool
+    restart: always
+    ports:
+      - "3301:3301"
+    env_file:
+      - .env
+    command: tarantool
+
+  http_server:
+    build: .
+    container_name: poll-app
+    depends_on:
+      - tarantool
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
