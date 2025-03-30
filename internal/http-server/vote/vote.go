@@ -11,12 +11,12 @@ import (
 	"net/http"
 )
 
-type PollVoter interface {
+type PollProvider interface {
 	UpdatePoll(poll *pollStruct.Poll) error
 	GetPoll(uuid string) (*pollStruct.Poll, error)
 }
 
-func New(voter PollVoter) http.HandlerFunc {
+func New(provider PollProvider) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var cmd slashRequest.SlashCommandRequest
 		if err := json.NewDecoder(request.Body).Decode(&cmd); err != nil {
@@ -32,7 +32,7 @@ func New(voter PollVoter) http.HandlerFunc {
 			return
 		}
 
-		poll, err := voter.GetPoll(cmd.Context.PollID)
+		poll, err := provider.GetPoll(cmd.Context.PollID)
 		if err != nil {
 			log.Println("failed to get poll from db:", err)
 			http.Error(writer, "Internal server error", http.StatusInternalServerError)
@@ -67,7 +67,7 @@ func New(voter PollVoter) http.HandlerFunc {
 		poll.Voters[cmd.UserID] = cmd.Context.OptionIndex
 		poll.Votes[cmd.Context.OptionIndex]++
 
-		err = voter.UpdatePoll(poll)
+		err = provider.UpdatePoll(poll)
 		if err != nil {
 			log.Println("Error placing vote to db", err)
 			http.Error(writer, "Internal server error", http.StatusInternalServerError)

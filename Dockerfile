@@ -13,7 +13,7 @@ RUN go build -o poll-app ./cmd/mm-polls
 
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y libssl3 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libssl3  && apt-get install curl -y && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

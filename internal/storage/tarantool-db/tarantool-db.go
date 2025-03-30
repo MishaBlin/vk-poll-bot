@@ -61,6 +61,14 @@ func (tt *Tarantool) UpdatePoll(poll *pollStruct.Poll) error {
 	return nil
 }
 
+func (tt *Tarantool) DeletePoll(uuid string) error {
+	_, err := tt.connection.Do(tarantool.NewDeleteRequest("polls").Key(tarantool.StringKey{S: uuid})).Get()
+	if err != nil {
+		return fmt.Errorf("error deleting the poll: %s", err)
+	}
+	return nil
+}
+
 func (tt *Tarantool) GetPoll(uuid string) (*pollStruct.Poll, error) {
 	var result []pollStruct.Poll
 	err := tt.connection.Do(tarantool.NewSelectRequest("polls").
@@ -75,4 +83,13 @@ func (tt *Tarantool) GetPoll(uuid string) (*pollStruct.Poll, error) {
 		return &result[0], nil
 	}
 	return nil, fmt.Errorf("poll id not found in db")
+}
+
+func (tt *Tarantool) GetAllPolls() ([]pollStruct.Poll, error) {
+	var result []pollStruct.Poll
+	err := tt.connection.Do(tarantool.NewSelectRequest("polls").Iterator(tarantool.IterAll)).GetTyped(&result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

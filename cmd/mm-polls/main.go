@@ -4,6 +4,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"log"
+	"mm-polls/internal/http-server/cleanup"
 	"mm-polls/internal/http-server/create"
 	"mm-polls/internal/http-server/finish"
 	"mm-polls/internal/http-server/results"
@@ -41,6 +42,7 @@ func main() {
 	router.Post("/vote", vote.New(tt))
 	router.Post("/results", results.New(tt))
 	router.Post("/finish", finish.New(tt))
+	router.Post("/cleanup", cleanup.New(tt))
 
 	srv := &http.Server{
 		Addr:    ":8080",
